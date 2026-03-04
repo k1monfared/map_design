@@ -132,3 +132,61 @@ export async function fetchElevationGrid(bbox, gridSize = 512) {
 
   return { grid: output, width: outW, height: outH, min, max }
 }
+
+/**
+ * Fetch supplemental lake/ocean bathymetry from NOAA ETOPO1 ImageServer.
+ * Returns null on CORS/network failure (graceful fallback).
+ *
+ * @param {[number,number,number,number]} bbox - [west, south, east, north]
+ * @param {number} gridSize
+ * @returns {{ grid: Float32Array, width: number, height: number } | null}
+ */
+export async function fetchETOPOGrid(bbox, gridSize = 512) {
+  const [west, south, east, north] = bbox
+  const base = 'https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/ETOPO1_bedrock/ImageServer/exportImage'
+  const params = new URLSearchParams({
+    bbox: `${west},${south},${east},${north}`,
+    bboxSR: '4326',
+    size: `${gridSize},${gridSize}`,
+    format: 'tiff',
+    pixelType: 'F32',
+    f: 'json',
+  })
+
+  try {
+    const metaResp = await fetch(`${base}?${params}`)
+    if (!metaResp.ok) return null
+    const meta = await metaResp.json()
+    if (!meta.href) return null
+
+    const tiffResp = await fetch(meta.href)
+    if (!tiffResp.ok) return null
+    const arrayBuffer = await tiffResp.arrayBuffer()
+
+    const { fromArrayBuffer } = await import('geotiff')
+    const tiff = await fromArrayBuffer(arrayBuffer)
+    const image = await tiff.getImage()
+    const [band] = await image.readRasters()
+    const grid = new Float32Array(band)
+    return { grid, width: image.getWidth(), height: image.getHeight() }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Merge two elevation grids by taking the minimum value (deeper reading) per pixel.
+ * Both grids must have the same length.
+ *
+ * @param {Float32Array} primary
+ * @param {{ grid: Float32Array } | null} supplement
+ * @returns {Float32Array}
+ */
+export function mergeElevationGrids(primary, supplement) {
+  if (!supplement?.grid || supplement.grid.length !== primary.length) return primary
+  const out = new Float32Array(primary.length)
+  for (let i = 0; i < primary.length; i++) {
+    out[i] = Math.min(primary[i], supplement.grid[i])
+  }
+  return out
+}

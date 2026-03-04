@@ -45,10 +45,14 @@
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
       const topo = await resp.json()
       const fc = topoFeature(topo, topo.objects.countries)
-      // Augment features with ISO_A2 = String(id) for RegionSelector compatibility
+      // Augment features with ISO_A2 for RegionSelector compatibility
+      // Some territories (Kosovo, N. Cyprus, Somaliland) have no numeric id
       features = fc.features.map(f => ({
         ...f,
-        properties: { ...f.properties, ISO_A2: String(f.id) }
+        properties: {
+          ...f.properties,
+          ISO_A2: f.id != null ? String(f.id) : f.properties?.name ?? 'unknown'
+        }
       }))
     } catch (e) {
       dataError = 'Failed to load map: ' + e.message
@@ -258,6 +262,8 @@
       <svg
         bind:this={svgEl}
         viewBox="0 0 {W} {H}"
+        width={W}
+        height={H}
         xmlns="http://www.w3.org/2000/svg"
         class="map-svg"
         role="img"
@@ -297,10 +303,11 @@
 
 <style>
   .page {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     background: var(--color-bg);
+    overflow: hidden;
   }
 
   nav {
@@ -342,12 +349,14 @@
     background: #111;
     overflow: hidden;
     padding: 1rem;
+    min-width: 0;
   }
 
   .map-svg {
     max-width: 100%;
     max-height: 100%;
     display: block;
+    height: auto;
   }
 
   .country {

@@ -411,9 +411,9 @@
           {:else if !drawStart}
             <p class="hint">Click first corner on map</p>
             <button class="btn-secondary" on:click={cancelDraw}>Cancel</button>
-          {:else if drawRect && !drawStart.confirmed}
-            <p class="hint">Click second corner to complete</p>
-            <button class="btn" on:click={confirmFrame}>Confirm Frame</button>
+          {:else}
+            <p class="hint">{drawRect ? 'Move mouse to adjust, then confirm' : 'Move mouse to draw rectangle'}</p>
+            <button class="btn" on:click={confirmFrame} disabled={!drawRect}>Confirm Frame</button>
             <button class="btn-secondary" on:click={cancelDraw}>Cancel</button>
           {/if}
         {:else}
@@ -479,16 +479,14 @@
 
     <!-- Right: map (phases FIND/DRAW) or SVG (phase CONTOUR) -->
     <div class="canvas-area">
-      {#if phase !== PHASE.CONTOUR}
-        <!-- MapLibre map -->
-        <div bind:this={mapContainer} class="map-container"></div>
-        {#if drawRect}
-          <!-- Draw rect overlay (visual feedback) -->
-          <div class="draw-hint">
-            Frame: {drawRect.west.toFixed(3)}° to {drawRect.east.toFixed(3)}°
-          </div>
-        {/if}
-      {:else}
+      <!-- MapLibre map — always in DOM, hidden when showing contours -->
+      <div bind:this={mapContainer} class="map-container" class:hidden={phase === PHASE.CONTOUR}></div>
+      {#if drawRect && phase !== PHASE.CONTOUR}
+        <div class="draw-hint">
+          Frame: {drawRect.west.toFixed(3)}° to {drawRect.east.toFixed(3)}°
+        </div>
+      {/if}
+      {#if phase === PHASE.CONTOUR}
         <!-- Contour SVG -->
         <svg
           bind:this={svgEl}
@@ -528,12 +526,15 @@
   </div>
 </div>
 
+<!-- MapLibre CSS loaded from index.html -->
+
 <style>
   .page {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     background: var(--color-bg);
+    overflow: hidden;
   }
 
   nav {
@@ -583,10 +584,16 @@
     height: 100%;
   }
 
+  .map-container.hidden {
+    display: none;
+  }
+
   .map-svg {
     max-width: 100%;
     max-height: 100%;
     display: block;
+    width: auto;
+    height: auto;
   }
 
   /* Search */

@@ -97,7 +97,7 @@ export async function fetchElevationGrid(bbox, gridSize = 512) {
   }
 
   // Map bbox to pixel extents within the assembled tile grid
-  function lonPx(lon) { return (lonToTile(lon, z) - xMin + (lon + 180) / 360 * Math.pow(2, z) % 1) * tileW }
+  function lonPx(lon) { return (lonToTile(lon, z) - xMin + ((lon + 180) / 360 * Math.pow(2, z)) % 1) * tileW }
   function latPx(lat) {
     const rad = lat * Math.PI / 180
     const tyFrac = (1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2 * Math.pow(2, z)

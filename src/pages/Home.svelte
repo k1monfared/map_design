@@ -23,6 +23,12 @@
       <span class="cta">Open Tool →</span>
     </a>
   </div>
+
+  <footer>
+    <a href="https://github.com/k1monfared/map_design" target="_blank" rel="noopener">
+      View source on GitHub
+    </a>
+  </footer>
 </div>
 
 <style>
@@ -96,5 +102,19 @@
     font-weight: 600;
     font-size: 0.9rem;
     margin-top: 0.5rem;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  footer a {
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: var(--color-text);
   }
 </style>

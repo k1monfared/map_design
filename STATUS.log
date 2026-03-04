@@ -1,69 +1,91 @@
 - Project Status
-    - Last Updated: YYYY-MM-DD
-    - Development Mode: [Claude Code | Manual | Hybrid]
-    - Stage: Initial Setup
-    - Next Milestone: [Description of next goal]
+    - Last Updated: 2026-03-03
+    - Development Mode: Claude Code
+    - Stage: MVP
+    - Next Milestone: End-to-end browser testing and polish
 
 - Development Stages
     - [x] Initial Setup
-        - Created: YYYY-MM-DD
+        - Created: 2026-03-03
         - Repository initialized
         - Basic structure in place
-        - Template copied from claude_code_project_template
-    - [] Proof of Concept (POC)
-        - Target: YYYY-MM-DD
-        - Goal: Validate core concept and technology choices
-        - Success criteria:
-            - [] Key feature X works
-            - [] Technology stack validated
-            - [] Basic end-to-end flow demonstrated
-    - [] Minimum Viable Product (MVP)
-        - Goal: First usable version with core features
+    - [x] Proof of Concept (POC)
+        - Completed: 2026-03-03
+        - Validated Vite + Svelte stack
+        - Confirmed d3-geo, d3-contour, MapLibre GL JS, Terrarium tiles all work
+        - Confirmed GitHub Actions deploy pipeline works
+    - [x] Minimum Viable Product (MVP)
+        - Completed: 2026-03-03
         - Core features:
-            - [] Feature A
-            - [] Feature B
-            - [] Feature C
+            - [x] Tool 1: World Map Wall Art
+                - Country selection (click or list), search, select all/invert/clear
+                - Palette presets + per-color overrides
+                - Border toggle + color
+                - Optional elevation backdrop (Terrarium tiles)
+                - SVG/PDF/PNG/TIFF export with DPI + physical size
+                - Permanent URL hash state
+            - [x] Tool 2: Custom Topographic Map
+                - Location search via Nominatim
+                - Bounding box draw on MapLibre GL JS map
+                - Elevation fetch (Terrarium tiles + NOAA ETOPO1 lake bathymetry)
+                - d3-contour isoline generation
+                - N slider + per-level sliders
+                - Gradient palette assignment
+                - CNC ZIP export (per-level SVGs via JSZip)
+                - Permanent URL hash state
+            - [x] GitHub Pages deploy at https://k1monfared.github.io/map_design/
         - Known issues:
-            - [List bugs that block demo/production]
+            - No visual rectangle overlay while drawing bbox on map (text hint only)
+            - Small lakes (<5 km) show flat surface (GLOBathy not integrated)
     - [] Beta Release
-        - Goal: Feature-complete but needs polish
+        - Goal: Polish, browser testing, edge case fixes
         - Missing features:
-            - [] Feature X
-            - [] Feature Y
-            - [] Feature Z
+            - [] Visual draw-rectangle overlay on MapLibre map
+            - [] Contour label rendering (showLabels toggle)
+            - [] Per-country color overrides on World Map
+            - [] GLOBathy integration for small lake bathymetry
         - Active users: N/A
-        - Stability: [Assessment]
+        - Stability: Untested in browser post-deploy
     - [] Production Ready
         - Goal: Stable, documented, tested
-        - Deployment status: [Not deployed | Staging | Production]
-        - Documentation: [Complete | In Progress | Needed]
-        - Tests: [Coverage percentage or status]
-    - [] Maintenance Mode
-        - Core complete and stable
-        - Nice-to-haves queued:
-            - Enhancement A
-            - Enhancement B
-            - Enhancement C
+        - Deployment status: Staging (GitHub Pages)
+        - Documentation: Needed
+        - Tests: None
 
 - Technical Details
     - Tech Stack:
-        - [List technologies, languages, frameworks]
+        - Vite 5 + Svelte 4
+        - d3-geo, d3-contour, topojson-client
+        - MapLibre GL JS 4
+        - jsPDF + svg2pdf.js (vector PDF export)
+        - UTIF (TIFF export)
+        - JSZip (CNC layer export)
+        - geotiff (NOAA ETOPO1 GeoTIFF decode)
     - Key Files:
-        - [Important files and their purposes]
+        - src/pages/WorldMap.svelte — Tool 1
+        - src/pages/TopoMap.svelte — Tool 2
+        - src/lib/state.js — URL hash encode/decode
+        - src/lib/export.js — SVG/PDF/PNG/TIFF export
+        - src/lib/palettes.js — color palette presets
+        - src/lib/elevation.js — Terrarium + ETOPO1 tile fetch
+        - src/components/ — ExportPanel, ColorPicker, RegionSelector, ContourControls
+        - public/data/ — world-110m.json, world-50m.json (Natural Earth TopoJSON)
+        - .github/workflows/deploy.yml — GitHub Actions → gh-pages
     - Architecture Notes:
-        - [Key design decisions]
-        - [Patterns used]
-        - [Dependencies]
+        - Static site, no backend
+        - All state in URL hash (base64url JSON)
+        - SVG-first rendering, raster export via canvas rasterization
+        - Elevation: AWS Terrarium tiles (primary) + NOAA ETOPO1 ImageServer (supplemental)
 
 - Current Focus
     - Active Tasks:
-        - [] Task 1
-        - [] Task 2
+        - [] Browser smoke test the deployed site
+        - [] Verify each export format downloads correctly
+        - [] Verify URL state round-trip works
     - Blockers:
-        - [Any blocking issues]
+        - None
     - Recent Progress:
-        - YYYY-MM-DD: [What was accomplished]
-        - YYYY-MM-DD: [What was accomplished]
+        - 2026-03-03: Full MVP implemented and deployed to GitHub Pages
 
 - Notes
     - Use loglog format for all documentation
